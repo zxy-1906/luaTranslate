@@ -31,22 +31,22 @@ def image_to_labels_cityscapes(img):
 
     # load the labels
     label_colors = load_label_map_cityscapes()
-    Nlabels = label_colors.size(1)
+    Nlabels = label_colors.size()
 
-    label_colors_img = torch.FloatTensor(Nlabels,img.size(1),img.size(2),img.size(3))
-    for i in range(1,label_colors_img.size(1)) :
+    label_colors_img = torch.FloatTensor(Nlabels,img.size(0),img.size(1),img.size(2))
+    for i in range(0,label_colors_img.size(0)-1) :
             # fill in three color channels
+            label_colors_img[i][0].fill(label_colors[i][0])
             label_colors_img[i][1].fill(label_colors[i][1])
             label_colors_img[i][2].fill(label_colors[i][2])
-            label_colors_img[i][3].fill(label_colors[i][3])
 
     # assign label that is closest in color for each output pixel
-    dists = torch.FloatTensor(label_colors_img.size(1),img.size(2),img.size(3))
-    for i in range(1,label_colors_img.size(1)) :
+    dists = torch.FloatTensor(label_colors_img.size(0),img.size(1),img.size(2))
+    for i in range(0,label_colors_img.size(0)-1) :
             dists[i] = torch.add(img,torch.mul(label_colors_img[i],-1)).pow(2).sum(1).squeeze()
 
     y, ii = torch.min(dists, 1)
-    ii = ii[1]
+    ii = ii[0]
     ii = ii-1
     ii = ii.float().div(255)
 
